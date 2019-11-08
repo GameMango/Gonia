@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class lookAround : MonoBehaviour
+public class LookAround : MonoBehaviour
 {
 
     public float mouseSensitiviyt = 100f;

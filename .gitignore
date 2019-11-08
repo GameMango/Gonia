@@ -5,6 +5,7 @@
 [Oo]bj/
 [Bb]uild/
 [Bb]uilds/
+[Ll]ogs/
 [Ll]ibrary/
 sysinfo.txt
 
@@ -37,3 +38,6 @@ ehthumbs.db
 !ICSharpCode.SharpZipLib.dll
 !websocket-sharp.dll
 !*.dll
+
+
+.idea/
