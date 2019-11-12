@@ -1,13 +1,19 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Gonia.Character.Tool
 {
     public class ToolController : MonoBehaviour
     {
         public GameObject grabbedObject;
+        private Rigidbody _grabbedRigidbody;
+        private float _origDrag;
+        private float _origMass;
+
         public OVRInput.Controller controller;
         public OVRInput.Controller secondaryController;
+        public Camera centerEye;
         public Transform trackingSpace;
         public LineRenderer lineRendererTranslate;
         public LineRenderer lineRendererRotate;
@@ -16,13 +22,21 @@ namespace Gonia.Character.Tool
         public float minGrabDistance = 0.3f;
         public float previewThreshold = 0.1f;
         public float triggerThreshold = 0.9f;
+        public float forceMult = 0.5f;
+
+        public float grabDrag = 8;
+        public float grabMass = 1;
+
+        public float rotationStickSensitivity = 1;
+        public float rotationHandSensitivity = 1;
+        public float clampRotation = 45;
+
         private bool _grabbing;
-        private bool _rotating;
         private bool _triggeredGrab;
         private bool _triggeredRotate;
         private float _grabDistance;
 
-        private Vector3 _rotatePosition;
+        private float _rotateZLast;
 
         private void FixedUpdate()
         {
@@ -31,13 +45,14 @@ namespace Gonia.Character.Tool
                 if (_triggeredGrab) return;
                 if (_grabbing)
                 {
-                    Rigidbody rig = grabbedObject.GetComponent<Rigidbody>();
-                    rig.isKinematic = false;
-                    rig.useGravity = true;
+                    _grabbedRigidbody.useGravity = true;
+                    _grabbedRigidbody.drag = _origDrag;
+                    _grabbedRigidbody.mass = _origMass;
+                    _grabbedRigidbody.freezeRotation = false;
                     grabbedObject = null;
+                    _grabbedRigidbody = null;
                     _grabbing = false;
                     _triggeredRotate = false;
-                    lineRendererRotate.enabled = false;
                 }
                 else
                 {
@@ -51,9 +66,13 @@ namespace Gonia.Character.Tool
                         if (hit.transform.gameObject.CompareTag("Grabbable"))
                         {
                             grabbedObject = hit.transform.gameObject;
-                            Rigidbody rig = grabbedObject.GetComponent<Rigidbody>();
-                            rig.isKinematic = true;
-                            rig.useGravity = false;
+                            _grabbedRigidbody = grabbedObject.GetComponent<Rigidbody>();
+                            _grabbedRigidbody.useGravity = false;
+                            _origDrag = _grabbedRigidbody.drag;
+                            _origMass = _grabbedRigidbody.mass;
+                            _grabbedRigidbody.mass = grabMass;
+                            _grabbedRigidbody.freezeRotation = true;
+                            _grabbedRigidbody.drag = grabDrag;
                             _grabDistance = Vector3.Distance(pos, grabbedObject.transform.position);
                             _grabbing = true;
                         }
@@ -71,9 +90,8 @@ namespace Gonia.Character.Tool
             {
                 if (_triggeredRotate) return;
                 if (!_grabbing) return;
-                Vector3 secondPos =
-                    trackingSpace.TransformPoint(OVRInput.GetLocalControllerPosition(secondaryController));
-                _rotatePosition = secondPos;
+
+                _rotateZLast = OVRInput.GetLocalControllerRotation(secondaryController).z;
 
                 _triggeredRotate = true;
             }
@@ -98,20 +116,21 @@ namespace Gonia.Character.Tool
                 Vector3 rotEuler =
                     trackingSpace.TransformDirection(OVRInput.GetLocalControllerRotation(controller).eulerAngles);
                 Quaternion rot = Quaternion.Euler(rotEuler);
-                grabbedObject.transform.position = pos + rot * Vector3.forward * _grabDistance;
+                _grabbedRigidbody.AddForce(
+                    (pos + rot * Vector3.forward * _grabDistance - grabbedObject.transform.position) * forceMult);
 
                 if (_triggeredRotate)
                 {
-                    lineRendererRotate.enabled = true;
-                    Vector3 secondPos =
-                        trackingSpace.TransformPoint(OVRInput.GetLocalControllerPosition(secondaryController));
-                    grabbedObject.transform.LookAt(trackingSpace.position + (_rotatePosition - secondPos));
-                    lineRendererRotate.SetPosition(0, _rotatePosition);
-                    lineRendererRotate.SetPosition(1, secondPos);
-                }
-                else
-                {
-                    lineRendererRotate.enabled = false;
+                    Vector3 rotSecond = OVRInput.GetLocalControllerRotation(secondaryController).eulerAngles;
+                    Vector2 stickInput = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, secondaryController);
+
+                    var grabPos = grabbedObject.transform.position;
+                    grabbedObject.transform.RotateAround(grabPos, centerEye.transform.forward, rotSecond.z - _rotateZLast);
+
+                    _rotateZLast = rotSecond.z;
+                    
+                    grabbedObject.transform.RotateAround(grabPos, centerEye.transform.up, stickInput.x);
+                    grabbedObject.transform.RotateAround(grabPos, centerEye.transform.right, stickInput.y);
                 }
             }
             else if (OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger, controller) >= previewThreshold)
