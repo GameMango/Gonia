@@ -55,6 +55,8 @@ namespace UnityStandardAssets.Characters.FirstPerson
             UpdateCursorLock();
         }
 
+        
+
         public void SetCursorLock(bool value)
         {
             lockCursor = value;

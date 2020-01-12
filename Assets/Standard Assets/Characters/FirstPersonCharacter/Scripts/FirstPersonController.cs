@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityStandardAssets.CrossPlatformInput;
 using UnityStandardAssets.Utility;
 using Random = UnityEngine.Random;
+using UnityEngine.SceneManagement;
+
 
 namespace UnityStandardAssets.Characters.FirstPerson
 {
@@ -10,6 +12,13 @@ namespace UnityStandardAssets.Characters.FirstPerson
     [RequireComponent(typeof (AudioSource))]
     public class FirstPersonController : MonoBehaviour
     {
+
+
+        /// <summary>
+        
+        /// </summary>
+
+
         [SerializeField] private bool m_IsWalking;
         [SerializeField] private float m_WalkSpeed;
         [SerializeField] private float m_RunSpeed;
@@ -130,8 +139,12 @@ namespace UnityStandardAssets.Characters.FirstPerson
             ProgressStepCycle(speed);
             UpdateCameraPosition(speed);
 
+            if (Input.GetKey(KeyCode.Q))
+                m_MouseLook.lockCursor = false;
+
             m_MouseLook.UpdateCursorLock();
-        }
+
+    }
 
 
         private void PlayJumpSound()
