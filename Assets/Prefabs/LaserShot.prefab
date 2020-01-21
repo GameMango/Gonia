@@ -146,3 +146,4 @@ MonoBehaviour:
   maxBounces: 3
   hitPrefab: {fileID: 271049911896409063, guid: fb46de2d8187a404ab5ea8f5ed383d97,
     type: 3}
+  _bounces: 0

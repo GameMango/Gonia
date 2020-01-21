@@ -10,7 +10,7 @@ namespace Laser
         public GameObject hitPrefab;
         
         private Rigidbody _rigidbody;
-        private int _bounces;
+        public int _bounces;
         public RaycastHit predicted;
 
         private void Awake()
@@ -40,11 +40,6 @@ namespace Laser
 
         private void OnCollisionEnter(Collision other)
         {
-            _rigidbody.velocity = Vector3.zero;
-        }
-
-        private void OnTriggerEnter(Collider other)
-        {
             _bounces++;
             if (_bounces > maxBounces)
             {
@@ -54,9 +49,9 @@ namespace Laser
             
             Instantiate(hitPrefab, predicted.point, Quaternion.LookRotation(predicted.normal));
             _rigidbody.velocity = Vector3.Reflect(_rigidbody.velocity.normalized, predicted.normal) * speed;
-//            transform.rotation = Quaternion.LookRotation(_rigidbody.velocity);
-            _rigidbody.velocity = Vector3.zero;
-//            UpdatePredicted();
+            transform.rotation = Quaternion.LookRotation(_rigidbody.velocity);
+            // _rigidbody.velocity = Vector3.zero;
+            UpdatePredicted();
         }
     }
 }
