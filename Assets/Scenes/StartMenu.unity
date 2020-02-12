@@ -405,6 +405,11 @@ PrefabInstance:
       propertyPath: m_ClearFlags
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 95154560640204538, guid: e4a44daee2cdaf941b4fcca5737bde8c,
+        type: 3}
+      propertyPath: m_Avatar
+      value: 
+      objectReference: {fileID: 9000000, guid: ca100eb53df7f194f8f3258f8c3d2418, type: 3}
     - target: {fileID: 1530401042893964, guid: e4a44daee2cdaf941b4fcca5737bde8c, type: 3}
       propertyPath: m_IsActive
       value: 1
