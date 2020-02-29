@@ -216,6 +216,11 @@ public class MainMenuNew : MonoBehaviour {
 		Application.Quit();
 	}
 
+	public void No()
+	{
+		exitMenu.gameObject.SetActive(false);
+	}
+
 	IEnumerator LoadAsynchronously (string sceneName){ // scene name is just the name of the current scene being loaded
 			AsyncOperation operation = SceneManager.LoadSceneAsync(sceneName);
 			operation.allowSceneActivation = false;
