@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Enable : MonoBehaviour
 {
-    public GameObject objectToActivate;
+    public GameObject[] objectToActivate;
     public GameObject objectToDeactivate;
 
     private void Start()
@@ -18,7 +18,10 @@ public class Enable : MonoBehaviour
         yield return new WaitForSeconds(10);
 
         //Turn My game object that is set to false(off) to True(on).
-        objectToActivate.SetActive(true);
+        foreach (var o in objectToActivate)
+        {
+            o.SetActive(true);
+        }
         objectToDeactivate.SetActive(false);
 
     }

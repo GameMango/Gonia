@@ -1,4 +1,5 @@
 using System;
+using Interaction;
 using UnityEngine;
 
 namespace Laser
@@ -10,13 +11,33 @@ namespace Laser
         public GameObject hitPrefab;
         
         private Rigidbody _rigidbody;
-        public int _bounces;
+        private int _bounces;
         public RaycastHit predicted;
+
+        public int Bounces => _bounces;
 
         private void Awake()
         {
             _rigidbody = GetComponent<Rigidbody>();
             _bounces = 0;
+        }
+        
+        private void Start()
+        {
+            Invoke(nameof(DestroyThis), 3f);
+        }
+
+        private void FixedUpdate()
+        {
+            if (_rigidbody.velocity.magnitude < speed - 1)
+            {
+                DestroyThis();
+            }
+        }
+
+        private void DestroyThis()
+        {
+            Destroy(gameObject);
         }
 
         public void SetSpeed(Vector3 direction, float newSpeed)
@@ -42,6 +63,12 @@ namespace Laser
         {
             _bounces++;
             if (_bounces > maxBounces)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            if (other.gameObject.GetComponent<HitInteraction>())
             {
                 Destroy(gameObject);
                 return;
